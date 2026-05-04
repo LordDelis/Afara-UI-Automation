@@ -8,13 +8,12 @@ pipeline {
     }
 
     environment {
-        NODE_ENV = 'test'
         CYPRESS_CACHE_FOLDER = '.cache/Cypress'
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
@@ -22,68 +21,65 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    npm ci
-                '''
+                sh 'npm ci'
             }
         }
 
-        stage('Verify Cypress Install') {
+        stage('Set Test Environment') {
             steps {
-                sh '''
-                    npx cypress verify
-                '''
+                script {
+                    switch (env.BRANCH_NAME) {
+                        case 'staging':
+                            env.APP_ENV = 'staging'
+                            break
+                        case 'prod':
+                            env.APP_ENV = 'prod'
+                            break
+                        default:
+                            error("Unsupported branch: ${env.BRANCH_NAME}")
+                    }
+
+                    echo "Branch: ${env.BRANCH_NAME}"
+                    echo "Test Environment: ${env.APP_ENV}"
+                }
             }
         }
 
-        stage('Run Smoke Tests') {
-            when {
-                branch 'main'
-            }
-            steps {
-                sh '''
-                    npx cypress run \
-                      --spec "cypress/e2e/smoke/**/*.cy.js" \
-                      --browser chrome
-                '''
-            }
-        }
+        stage('Run Cypress Tests') {
+            parallel {
+                stage('Chrome Tests') {
+                    steps {
+                        sh "npx cypress run --browser chrome --env APP_ENV=${APP_ENV}"
+                    }
+                }
 
-        stage('Run Regression Tests') {
-            when {
-                branch 'main'
-            }
-            steps {
-                sh '''
-                    npx cypress run \
-                      --spec "cypress/e2e/regression/**/*.cy.js" \
-                      --browser chrome
-                '''
-            }
-        }
+                stage('Firefox Tests') {
+                    steps {
+                        sh "npx cypress run --browser firefox --env APP_ENV=${APP_ENV}"
+                    }
+                }
 
-        stage('Generate Reports') {
-            steps {
-                sh '''
-                    npm run report:merge || true
-                    npm run report:generate || true
-                '''
+                stage('Edge Tests') {
+                    steps {
+                        sh "npx cypress run --browser edge --env APP_ENV=${APP_ENV}"
+                    }
+                }
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'cypress/screenshots/**, cypress/videos/**', allowEmptyArchive: true
-            junit 'cypress/results/*.xml'
-        }
-
-        failure {
-            echo 'Test execution failed. Check logs and artifacts.'
+            archiveArtifacts artifacts: 'reports/**/*', allowEmptyArchive: true
+            junit 'reports/**/*.xml'
         }
 
         success {
-            echo 'All tests passed successfully.'
+            echo "Cypress tests passed in ${env.APP_ENV} environment"
+        }
+
+        failure {
+            echo "Cypress tests failed in ${env.APP_ENV} environment"
         }
     }
 }
