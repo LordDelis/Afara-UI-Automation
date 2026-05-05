@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS-18'
+    }
+
     options {
         timestamps()
         disableConcurrentBuilds()
@@ -32,7 +36,7 @@ pipeline {
                         case 'staging':
                             env.APP_ENV = 'staging'
                             break
-                        case 'prod':
+                        case 'main':
                             env.APP_ENV = 'prod'
                             break
                         default:
