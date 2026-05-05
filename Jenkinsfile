@@ -36,7 +36,7 @@ pipeline {
                         case 'staging':
                             env.APP_ENV = 'staging'
                             break
-                        case 'prod':
+                        case 'main':
                             env.APP_ENV = 'prod'
                             break
                         default:
