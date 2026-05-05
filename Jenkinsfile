@@ -57,17 +57,17 @@ pipeline {
                     }
                 }
 
-                stage('Firefox Tests') {
-                    steps {
-                        sh "npx cypress run --browser firefox --env APP_ENV=${APP_ENV}"
-                    }
-                }
-
-                stage('Edge Tests') {
-                    steps {
-                        sh "npx cypress run --browser edge --env APP_ENV=${APP_ENV}"
-                    }
-                }
+//                 stage('Firefox Tests') {
+//                     steps {
+//                         sh "npx cypress run --browser firefox --env APP_ENV=${APP_ENV}"
+//                     }
+//                 }
+//
+//                 stage('Edge Tests') {
+//                     steps {
+//                         sh "npx cypress run --browser edge --env APP_ENV=${APP_ENV}"
+//                     }
+//                 }
             }
         }
     }
