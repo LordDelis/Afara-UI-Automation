@@ -4,12 +4,8 @@
   "description": "Cypress automation framework for Facebook sign up",
   "main": "index.js",
   "scripts": {
-    "test:staging": "npx cypress run --env APP_ENV=staging",
-    "test:preprod": "npx cypress run --env APP_ENV=preprod",
-    "test:prod": "npx cypress run --env APP_ENV=prod",
-    "test:ui:staging": "npx cypress open --env APP_ENV=staging",
-    "test:ui:preprod": "npx cypress open --env APP_ENV=preprod",
-    "test:ui:prod": "npx cypress open --env APP_ENV=prod"
+    "staging-ui-test": "npx cypress run --env APP_ENV=staging",
+    "prod-ui-test": "npx cypress run --env APP_ENV=prod"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
